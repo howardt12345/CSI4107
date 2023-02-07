@@ -1,2 +1,2 @@
 # CSI4107
-Assignments for CSI 4107
+The monorepo for CSI4107 group 1
