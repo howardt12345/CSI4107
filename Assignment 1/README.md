@@ -12,7 +12,7 @@ Shang Lin Heish, 300121996
 
 | Name | Contribution |
 | --- | --- |
-| Howard Hao En Tseng | Initializing repository, "Getting Started" section |
+| Howard Hao En Tseng | Initializing assignment project, "Getting Started" section |
 | Leah Young |  |
 | Shang Lin Heish |  |
 
