@@ -24,6 +24,7 @@ Shang Lin Heish, 300121996
 # Getting Started
 
 Python 3.8 is **required** to install the packages used in this project. If you do not have Python 3.8 installed on your machine, you can download it from [here](https://www.python.org/downloads/release/python-380/).
+Java 11 or greater is also required, and the JAVA_HOME environment variable must be set to the Java installation directory.
 
 ### Recommended: Setting up a virtual environment
 
@@ -55,3 +56,4 @@ python main.py
 ```
 
 # Results
+
