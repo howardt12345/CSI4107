@@ -61,8 +61,8 @@ def preprocess(file):
     table = str.maketrans('', '', string.punctuation)
     stripped = [w.translate(table) for w in stemmed_tokens]
 
-    # remove empty tokens
-    stripped = [token for token in stripped if token]
+    # remove empty tokens and stopwords again
+    stripped = [token for token in stripped if token and token not in stop_words]
 
     # create a document object
     doc = Document(doc_no, doc_text, stripped)
@@ -70,10 +70,14 @@ def preprocess(file):
   return preprocessed_documents
 
 # main function to preprocess a directory of text files
-def preprocess_directory(directory):
+def preprocess_directory(directory, num_files = -1):
   preprocessed_documents = []
+  ctr = 0
   for filename in os.listdir(directory):
     print('Processing file: ', filename)
     file = os.path.join(directory, filename)
     preprocessed_documents.extend(preprocess(file))
+    ctr += 1
+    if ctr == num_files and num_files != -1:
+      break
   return preprocessed_documents
