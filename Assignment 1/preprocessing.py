@@ -7,6 +7,7 @@ import os
 import nltk
 nltk.download('punkt')
 
+
 class Document:
   def __init__(self, doc_no, doc_text, tokens):
     self.doc_no = doc_no
@@ -26,6 +27,7 @@ def get_stop_words():
       stopwords.add(line.strip())
   return stopwords
 
+
 # initialize the stemmer
 stemmer = PorterStemmer()
 
@@ -33,6 +35,8 @@ stemmer = PorterStemmer()
 stop_words = get_stop_words()
 
 # function to perform preprocessing on the text
+
+
 def preprocess(file):
   with open(file, "r") as f:
     content = f.read()
@@ -50,19 +54,20 @@ def preprocess(file):
 
     # tokenize the text
     tokens = word_tokenize(doc_text)
-    #lowercase all tokens
+    # lowercase all tokens
     tokens = [token.lower() for token in tokens]
-    #remove stopwords
+    # remove stopwords
     tokens = [token for token in tokens if token not in stop_words]
-    #apply the porter stemmer
+    # apply the porter stemmer
     stemmer = PorterStemmer()
     stemmed_tokens = [stemmer.stem(token) for token in tokens]
-    #remove punctuation
+    # remove punctuation
     table = str.maketrans('', '', string.punctuation)
     stripped = [w.translate(table) for w in stemmed_tokens]
 
-    # remove empty tokens and stopwords again
-    stripped = [token for token in stripped if token and token not in stop_words]
+    # remove empty tokens, stopwords and non-alphabetic tokens
+    stripped = [
+        token for token in stripped if token and token not in stop_words and token.isalpha()]
 
     # create a document object
     doc = Document(doc_no, doc_text, stripped)
@@ -70,7 +75,9 @@ def preprocess(file):
   return preprocessed_documents
 
 # main function to preprocess a directory of text files
-def preprocess_directory(directory, num_files = -1):
+
+
+def preprocess_directory(directory, num_files=-1):
   preprocessed_documents = []
   ctr = 0
   for filename in os.listdir(directory):
