@@ -19,9 +19,22 @@ Shang Lin Heish, 300121996
 ## About the Program
 
 
-## Getting Started
+# Getting Started
 
-Python 3.8 is **required** to run this program.
+Python 3.8 is **required** to install the packages used in this project. If you do not have Python 3.8 installed on your machine, you can download it from [here](https://www.python.org/downloads/release/python-380/).
+
+### Recommended: Setting up a virtual environment
+
+This is an optional, but recommended, step to set up a virtual environment for this project. This is especially important if your default Python version is not 3.8.
+Before running the following commands, make sure you have python 3.8 installed on your machine. If not,  you can download it from [here](https://www.python.org/downloads/release/python-380/).
+
+To set up the virtual environment, run the following commands:
+
+```powershell
+pip install virtualenv
+python -m virtualenv .venv --python=python3.8
+.venv/Scripts/Activate.ps1
+```
 
 ### Installing packages
 
@@ -39,4 +52,4 @@ To run the program, run the following command:
 python main.py
 ```
 
-## Discussion of the results
+# Results
