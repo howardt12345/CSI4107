@@ -5,7 +5,9 @@ https://www.site.uottawa.ca/~diana/csi4107/A1_2023.htm
 ## Group Members
 
 Howard Hao En Tseng, 300108234
+
 Leah Young, 300118869
+
 Shang Lin Heish, 300121996
 
 ### Contribution
