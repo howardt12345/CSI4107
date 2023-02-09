@@ -4,12 +4,13 @@ import pandas as pd
 import os
 import nltk
 nltk.download('punkt')
-from preprocessing import preprocess_directory, preprocess
+from preprocessing import preprocess_directory
 
 
 if not pt.started():
   pt.init()
 
+# Function to generate the index
 def generate_index():
   # Preprocess the collection
   preprocessed_documents = preprocess_directory('AP_collection/coll')
