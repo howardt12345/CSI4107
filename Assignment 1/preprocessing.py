@@ -20,7 +20,6 @@ class Document:
   def to_dict(self):
     return {'docno': self.doc_no, 'doctext': self.doc_text, 'tokens': self.tokens, 'text': ' '.join(self.tokens)}
 
-
 # Get the stop words
 def get_stop_words():
   stopwords = set()
@@ -30,7 +29,6 @@ def get_stop_words():
       stopwords.add(line.strip())
   return stopwords
 
-
 # initialize the stemmer
 stemmer = PorterStemmer()
 
@@ -38,8 +36,6 @@ stemmer = PorterStemmer()
 stop_words = get_stop_words()
 
 # function to perform preprocessing on the text
-
-
 def preprocess(file):
   with open(file, "r") as f:
     content = f.read()
@@ -78,13 +74,11 @@ def preprocess(file):
   return preprocessed_documents
 
 # main function to preprocess a directory of text files
-
-
 def preprocess_directory(directory, num_files=-1):
   preprocessed_documents = []
   ctr = 0
   for filename in os.listdir(directory):
-    print('Processing file: ', filename)
+    print('Preprocessing file: ', filename)
     file = os.path.join(directory, filename)
     preprocessed_documents.extend(preprocess(file))
     ctr += 1
