@@ -36,10 +36,12 @@ bm25 = pt.BatchRetrieve(indexref, wmodel="BM25")
 
 # use the BM25 model to retrieve the top 10 documents for the query "information retrieval"
 result = bm25.search("Coping with overcrowded prisons")
+print('BM25')
 print(result)
 
 # Use the tf-idf retrieval model to retrieve the top 10 documents for the query "information retrieval"
 tfidf = pt.BatchRetrieve(indexref, wmodel="TF_IDF")
 result = tfidf.search("Coping with overcrowded prisons")
+print('\nTF-IDF')
 print(result)
 
