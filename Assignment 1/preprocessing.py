@@ -18,7 +18,7 @@ class Document:
     return 'Document Number: ' + self.doc_no + '\nDocument Text: ' + self.doc_text + '\nTokens: ' + str(self.tokens) + '\n'
 
   def to_dict(self):
-    return {'docno': self.doc_no, 'doctext': self.doc_text, 'tokens': self.tokens}
+    return {'docno': self.doc_no, 'doctext': self.doc_text, 'tokens': self.tokens, 'text': ' '.join(self.tokens)}
 
 
 # Get the stop words
