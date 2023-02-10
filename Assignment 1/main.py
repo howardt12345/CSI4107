@@ -34,12 +34,17 @@ else:
 # Create a BM25 retrieval model
 bm25 = pt.BatchRetrieve(indexref, wmodel="BM25")
 
-# use the BM25 model to retrieve the top 10 documents for the query "information retrieval"
+# use the BM25 model to index
 result = bm25.search("Coping with overcrowded prisons")
 print('BM25')
 print(result)
 
-# Use the tf-idf retrieval model to retrieve the top 10 documents for the query "information retrieval"
+#print file out to bm25IndexOut 
+bm_file_out = open('bm25IndexOut.txt', 'w')
+bm_file_out.write(result.to_string())
+bm_file_out.close()
+
+# Use the tf-idf retrieval model to index
 tfidf = pt.BatchRetrieve(indexref, wmodel="TF_IDF")
 result = tfidf.search("Coping with overcrowded prisons")
 print('\nTF-IDF')
