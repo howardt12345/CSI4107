@@ -20,10 +20,10 @@ def extract_topics(file, descriptions=False):
   return all_topics
 
 # function to query the model and write the results to a file
-def query_retrieve(model, descriptions=False, runid='runid'):
+def query_retrieve(model, descriptions=False, runid='runid', filename='Results.txt'):
   topics = extract_topics("topics1-50.txt", descriptions)
 
-  bm_file_out = open('Results.txt', 'w')
+  bm_file_out = open(filename, 'w')
 
   for i, topic in enumerate(topics):
     t = " ".join(preprocess_text(topic['title'], stem=False, stopwords=False))
@@ -38,4 +38,4 @@ def query_retrieve(model, descriptions=False, runid='runid'):
           result_row['rank']+1) + " " + str(result_row['score']) + " " + runid + "\n")
 
   bm_file_out.close()
-  print("Written results to Results.txt")
+  print("Written results to file: " + filename)
