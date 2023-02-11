@@ -6,6 +6,7 @@ import re
 import os
 import nltk
 nltk.download('punkt')
+from itertools import chain
 
 
 class Document:
@@ -34,6 +35,7 @@ stemmer = PorterStemmer()
 
 # load the stopwords
 stop_words = get_stop_words()
+
 
 # function to perform preprocessing on the text
 def preprocess(file):
@@ -73,6 +75,29 @@ def preprocess(file):
     preprocessed_documents.append(doc)
   return preprocessed_documents
 
+
+def preprocess_text(doc_text):
+      # lowercase the text
+    doc_text = doc_text.lower()
+
+    # tokenize the text
+    tokens = word_tokenize(doc_text)
+    # lowercase all tokens
+    tokens = [token.lower() for token in tokens]
+    # remove stopwords
+    tokens = [token for token in tokens if token not in stop_words]
+    # apply the porter stemmer
+    stemmer = PorterStemmer()
+    stemmed_tokens = [stemmer.stem(token) for token in tokens]
+    # remove punctuation
+    table = str.maketrans(string.punctuation, ' '*len(string.punctuation))
+    stripped = [w.translate(table) for w in stemmed_tokens]
+    stripped = list(chain(*[w.split() for w in stripped]))
+    
+    # remove empty tokens, stopwords and non-alphabetic tokens
+    stripped = [
+        token for token in stripped if token and token not in stop_words and token.isalpha()]
+    return ' '.join(stripped)
 # main function to preprocess a directory of text files
 def preprocess_directory(directory, num_files=-1):
   preprocessed_documents = []
@@ -85,3 +110,16 @@ def preprocess_directory(directory, num_files=-1):
     if ctr == num_files and num_files != -1:
       break
   return preprocessed_documents
+
+
+
+def extract_topics(file):
+  with open(file, "r") as f:
+    topic_content = f.read()
+  all_topics = []
+  topics = re.findall(r'<top>(.*?)</top>', topic_content, re.DOTALL)
+  for topic in topics:
+    raw_title = re.search(r'<title>(.*?)\n\n', topic, re.DOTALL)
+    title = raw_title.group(1) if raw_title else ''
+    all_topics.append(title)
+  return all_topics
