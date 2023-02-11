@@ -1,10 +1,9 @@
 # Query and write to file
-
 import re
 from preprocessing import preprocess_text
 
 # function to extract the topics from the topics file
-def extract_topics(file):
+def extract_topics(file, descriptions=False):
   with open(file, "r") as f:
     topic_content = f.read()
   all_topics = []
@@ -12,17 +11,26 @@ def extract_topics(file):
   for topic in topics:
     raw_title = re.search(r'<title>(.*?)\n\n', topic, re.DOTALL)
     title = raw_title.group(1) if raw_title else ''
-    all_topics.append(title)
+    if descriptions:
+      raw_desc = re.search(r'<desc>(.*?)\n\n', topic, re.DOTALL)
+      desc = raw_desc.group(1) if raw_desc else ''
+      all_topics.append({'title': title, 'description': desc})
+    else:
+      all_topics.append({'title': title})
   return all_topics
 
 # function to query the model and write the results to a file
-def query_retrieve(model):
-  topics = extract_topics("topics1-50.txt")
+def query_retrieve(model, descriptions=False):
+  topics = extract_topics("topics1-50.txt", descriptions)
 
   bm_file_out = open('Results.txt', 'w')
 
   for i, topic in enumerate(topics):
-    t = " ".join(preprocess_text(topic, stem=False, stopwords=False))
+    t = " ".join(preprocess_text(topic['title'], stem=False, stopwords=False))
+    if descriptions:
+      t += " " + \
+          " ".join(preprocess_text(
+              topic['description'], stem=False, stopwords=False))
     curr_result = model.search(t)
     for j in range(len(curr_result)):
       result_row = curr_result.iloc[j]

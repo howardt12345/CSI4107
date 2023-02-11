@@ -41,4 +41,4 @@ print("Using weighting model:", weighting)
 model = pt.BatchRetrieve(indexref, wmodel=weighting, num_results=1000)
 
 # Query the model and write the results
-query_retrieve(model)
+query_retrieve(model, descriptions=True)
