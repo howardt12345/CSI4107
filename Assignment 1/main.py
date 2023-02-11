@@ -15,7 +15,6 @@ if not pt.started():
 def generate_index():
   # Preprocess the collection
   preprocessed_documents = preprocess_directory('AP_collection/coll')
-  print(preprocessed_documents)
 
   # Create a dataframe from the preprocessed documents
   df = pd.DataFrame.from_records([doc.to_dict() for doc in preprocessed_documents])
