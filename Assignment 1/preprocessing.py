@@ -8,7 +8,6 @@ import os
 import nltk
 nltk.download('punkt')
 
-
 class Document:
   def __init__(self, doc_no, doc_text, tokens):
     self.doc_no = doc_no
@@ -22,8 +21,6 @@ class Document:
     return {'docno': self.doc_no, 'doctext': self.doc_text, 'tokens': self.tokens, 'text': ' '.join(self.tokens)}
 
 # Get the stop words
-
-
 def get_stop_words():
   stopwords = set()
   # Open the stop words and add them to the set
@@ -40,8 +37,6 @@ stemmer = PorterStemmer()
 stop_words = get_stop_words()
 
 # function to perform preprocessing on the text
-
-
 def preprocess(file):
   with open(file, "r") as f:
     content = f.read()
@@ -60,8 +55,6 @@ def preprocess(file):
   return preprocessed_documents
 
 # function to preprocess a single text string
-
-
 def preprocess_text(text: str, stem=True, stopwords=True):
     # lowercase the text
   text = text.lower()
@@ -87,8 +80,6 @@ def preprocess_text(text: str, stem=True, stopwords=True):
   return stripped
 
 # main function to preprocess a directory of text files
-
-
 def preprocess_directory(directory, num_files=-1):
   preprocessed_documents = []
   ctr = 0
@@ -100,17 +91,3 @@ def preprocess_directory(directory, num_files=-1):
     if ctr == num_files and num_files != -1:
       break
   return preprocessed_documents
-
-# function to extract the topics from the topics file
-
-
-def extract_topics(file):
-  with open(file, "r") as f:
-    topic_content = f.read()
-  all_topics = []
-  topics = re.findall(r'<top>(.*?)</top>', topic_content, re.DOTALL)
-  for topic in topics:
-    raw_title = re.search(r'<title>(.*?)\n\n', topic, re.DOTALL)
-    title = raw_title.group(1) if raw_title else ''
-    all_topics.append(title)
-  return all_topics
