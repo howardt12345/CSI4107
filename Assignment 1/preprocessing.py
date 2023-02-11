@@ -6,6 +6,7 @@ import re
 import os
 import nltk
 nltk.download('punkt')
+from itertools import chain
 
 
 class Document:
@@ -74,6 +75,29 @@ def preprocess(file):
     preprocessed_documents.append(doc)
   return preprocessed_documents
 
+
+def preprocess_text(doc_text):
+      # lowercase the text
+    doc_text = doc_text.lower()
+
+    # tokenize the text
+    tokens = word_tokenize(doc_text)
+    # lowercase all tokens
+    tokens = [token.lower() for token in tokens]
+    # remove stopwords
+    tokens = [token for token in tokens if token not in stop_words]
+    # apply the porter stemmer
+    stemmer = PorterStemmer()
+    stemmed_tokens = [stemmer.stem(token) for token in tokens]
+    # remove punctuation
+    table = str.maketrans(string.punctuation, ' '*len(string.punctuation))
+    stripped = [w.translate(table) for w in stemmed_tokens]
+    stripped = list(chain(*[w.split() for w in stripped]))
+    
+    # remove empty tokens, stopwords and non-alphabetic tokens
+    stripped = [
+        token for token in stripped if token and token not in stop_words and token.isalpha()]
+    return ' '.join(stripped)
 # main function to preprocess a directory of text files
 def preprocess_directory(directory, num_files=-1):
   preprocessed_documents = []
