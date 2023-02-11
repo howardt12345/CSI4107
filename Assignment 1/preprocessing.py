@@ -30,9 +30,6 @@ def get_stop_words():
   return stopwords
 
 
-# initialize the stemmer
-stemmer = PorterStemmer()
-
 # load the stopwords
 stop_words = get_stop_words()
 
