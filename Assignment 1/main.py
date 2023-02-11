@@ -34,8 +34,8 @@ else:
   indexref = pt.IndexFactory.of(os.path.abspath('./pd_index/data.properties'))
 
 # Create a BM25 retrieval model
-bm25 = pt.BatchRetrieve(indexref, wmodel="BM25")
-query_retrieve(bm25)
+tfidf = pt.BatchRetrieve(indexref, wmodel="TF_IDF")
+query_retrieve(tfidf)
 
 # # Query and write to
 # topics = extract_topics("topics1-50.txt")
