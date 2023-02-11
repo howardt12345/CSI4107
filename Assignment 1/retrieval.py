@@ -1,7 +1,7 @@
 # Query and write to file
 
 import string
-from preprocessing import extract_topics
+from preprocessing import extract_topics, preprocess_text
 
 
 def query_retrieve(model):
@@ -10,8 +10,7 @@ def query_retrieve(model):
   bm_file_out = open('Results.txt', 'w')
 
   for i, topic in enumerate(topics):
-    t = topic.translate(str.maketrans(
-        '', '', string.punctuation)).strip().lower()
+    t = " ".join(preprocess_text(topic, stem=False, stopwords=False))
     curr_result = model.search(t)
     for j in range(len(curr_result)):
       result_row = curr_result.iloc[j]

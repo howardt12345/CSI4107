@@ -22,6 +22,8 @@ class Document:
     return {'docno': self.doc_no, 'doctext': self.doc_text, 'tokens': self.tokens, 'text': ' '.join(self.tokens)}
 
 # Get the stop words
+
+
 def get_stop_words():
   stopwords = set()
   # Open the stop words and add them to the set
@@ -38,6 +40,8 @@ stemmer = PorterStemmer()
 stop_words = get_stop_words()
 
 # function to perform preprocessing on the text
+
+
 def preprocess(file):
   with open(file, "r") as f:
     content = f.read()
@@ -56,30 +60,35 @@ def preprocess(file):
   return preprocessed_documents
 
 # function to preprocess a single text string
-def preprocess_text(text: str):
+
+
+def preprocess_text(text: str, stem=True, stopwords=True):
     # lowercase the text
   text = text.lower()
 
   # tokenize the text
   tokens = word_tokenize(text)
-  # lowercase all tokens
-  tokens = [token.lower() for token in tokens]
   # remove stopwords
-  tokens = [token for token in tokens if token not in stop_words]
-  # apply the porter stemmer
-  stemmer = PorterStemmer()
-  stemmed_tokens = [stemmer.stem(token) for token in tokens]
+  if stopwords:
+    tokens = [token for token in tokens if token not in stop_words]
+  # stem the tokens
+  if stem:
+    # apply the porter stemmer
+    stemmer = PorterStemmer()
+    tokens = [stemmer.stem(token) for token in tokens]
   # remove punctuation
   table = str.maketrans(string.punctuation, ' '*len(string.punctuation))
-  stripped = [w.translate(table) for w in stemmed_tokens]
+  stripped = [w.translate(table) for w in tokens]
   stripped = list(chain(*[w.split() for w in stripped]))
 
-  # remove empty tokens, stopwords and non-alphabetic tokens
+  # remove empty tokens, stopwords (if applicable) and non-alphabetic tokens
   stripped = [
-      token for token in stripped if token and token not in stop_words and token.isalpha()]
+      token for token in stripped if token and (token not in stop_words if stopwords else True) and token.isalpha()]
   return stripped
 
 # main function to preprocess a directory of text files
+
+
 def preprocess_directory(directory, num_files=-1):
   preprocessed_documents = []
   ctr = 0
@@ -93,6 +102,8 @@ def preprocess_directory(directory, num_files=-1):
   return preprocessed_documents
 
 # function to extract the topics from the topics file
+
+
 def extract_topics(file):
   with open(file, "r") as f:
     topic_content = f.read()
