@@ -35,6 +35,7 @@ stemmer = PorterStemmer()
 # load the stopwords
 stop_words = get_stop_words()
 
+
 # function to perform preprocessing on the text
 def preprocess(file):
   with open(file, "r") as f:
@@ -85,3 +86,18 @@ def preprocess_directory(directory, num_files=-1):
     if ctr == num_files and num_files != -1:
       break
   return preprocessed_documents
+
+
+
+def extract_topics(file):
+  with open(file, "r") as f:
+    topic_content = f.read()
+  all_topics = []
+  topics = re.findall(r'<top>(.*?)</top>', topic_content, re.DOTALL)
+  for topic in topics:
+    raw_title = re.search(r'<title>(.*?)</title>', topic, re.DOTALL)
+    title = raw_title.group(1) if raw_title else ''
+    print(raw_title)
+    print(title)
+    all_topics.append(raw_title)
+  return all_topics
