@@ -95,7 +95,7 @@ def extract_topics(file):
   all_topics = []
   topics = re.findall(r'<top>(.*?)</top>', topic_content, re.DOTALL)
   for topic in topics:
-    raw_title = re.search(r'<title>(.*?)</title>', topic, re.DOTALL)
+    raw_title = re.search(r'<title>(.*?)\n', topic, re.DOTALL)
     title = raw_title.group(1) if raw_title else ''
     print(raw_title)
     print(title)
