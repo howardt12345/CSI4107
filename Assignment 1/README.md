@@ -14,17 +14,19 @@ Shang Lin Heish, 300121996
 
 | Name | Contribution |
 | --- | --- |
-| Howard Hao En Tseng | Initializing assignment project, "Getting Started" section, Preprocessing |
-| Leah Young |  |
-| Shang Lin Heish |  |
+| Howard Hao En Tseng | Initializing assignment project, "Getting Started" section, **Preprocessing**, initialized indexing, Topic querying with descriptions, README file |
+| Leah Young | **Indexing** using the Pyterrier system |
+| Shang Lin Heish | **Retrieval and Ranking**, processing the 50 queries and writing the results to Results.txt, fine-tuning results |
 
 ## About the Program
 
 
 # Getting Started
 
+This section is the complete guide to setting up the project and running the program. Follow the steps below to get started.
+
 Python 3.8 is **required** to install the packages used in this project. If you do not have Python 3.8 installed on your machine, you can download it from [here](https://www.python.org/downloads/release/python-380/).
-Java 11 or greater is also required, and the JAVA_HOME environment variable must be set to the Java installation directory.
+Java 11 or greater is also required, and the JAVA_HOME environment variable must be set to the Java installation directory. Instructions on how to do so can be found [here](https://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/).
 
 ### Recommended: Setting up a virtual environment
 
