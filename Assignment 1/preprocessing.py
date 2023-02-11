@@ -1,4 +1,5 @@
 # Functions and classes for preprocessing the data
+from itertools import chain
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 import string
@@ -6,7 +7,6 @@ import re
 import os
 import nltk
 nltk.download('punkt')
-from itertools import chain
 
 
 class Document:
@@ -30,12 +30,12 @@ def get_stop_words():
       stopwords.add(line.strip())
   return stopwords
 
+
 # initialize the stemmer
 stemmer = PorterStemmer()
 
 # load the stopwords
 stop_words = get_stop_words()
-
 
 # function to perform preprocessing on the text
 def preprocess(file):
@@ -48,56 +48,37 @@ def preprocess(file):
     raw_no = re.search(r'<DOCNO>(.*?)</DOCNO>', document, re.DOTALL)
     doc_no = raw_no.group(1) if raw_no else ''
     raw_text = re.search(r'<TEXT>(.*?)</TEXT>', document, re.DOTALL)
-    doc_text = raw_text.group(1) if raw_text else ''
-
-    # lowercase the text
-    doc_text = doc_text.lower()
-
-    # tokenize the text
-    tokens = word_tokenize(doc_text)
-    # lowercase all tokens
-    tokens = [token.lower() for token in tokens]
-    # remove stopwords
-    tokens = [token for token in tokens if token not in stop_words]
-    # apply the porter stemmer
-    stemmer = PorterStemmer()
-    stemmed_tokens = [stemmer.stem(token) for token in tokens]
-    # remove punctuation
-    table = str.maketrans('', '', string.punctuation)
-    stripped = [w.translate(table) for w in stemmed_tokens]
-
-    # remove empty tokens, stopwords and non-alphabetic tokens
-    stripped = [
-        token for token in stripped if token and token not in stop_words and token.isalpha()]
+    doc_text = raw_text.string if raw_text else ''
 
     # create a document object
-    doc = Document(doc_no, doc_text, stripped)
+    doc = Document(doc_no, doc_text, preprocess_text(doc_text))
     preprocessed_documents.append(doc)
   return preprocessed_documents
 
+# function to preprocess a single text string
+def preprocess_text(text: str):
+    # lowercase the text
+  text = text.lower()
 
-def preprocess_text(doc_text):
-      # lowercase the text
-    doc_text = doc_text.lower()
+  # tokenize the text
+  tokens = word_tokenize(text)
+  # lowercase all tokens
+  tokens = [token.lower() for token in tokens]
+  # remove stopwords
+  tokens = [token for token in tokens if token not in stop_words]
+  # apply the porter stemmer
+  stemmer = PorterStemmer()
+  stemmed_tokens = [stemmer.stem(token) for token in tokens]
+  # remove punctuation
+  table = str.maketrans(string.punctuation, ' '*len(string.punctuation))
+  stripped = [w.translate(table) for w in stemmed_tokens]
+  stripped = list(chain(*[w.split() for w in stripped]))
 
-    # tokenize the text
-    tokens = word_tokenize(doc_text)
-    # lowercase all tokens
-    tokens = [token.lower() for token in tokens]
-    # remove stopwords
-    tokens = [token for token in tokens if token not in stop_words]
-    # apply the porter stemmer
-    stemmer = PorterStemmer()
-    stemmed_tokens = [stemmer.stem(token) for token in tokens]
-    # remove punctuation
-    table = str.maketrans(string.punctuation, ' '*len(string.punctuation))
-    stripped = [w.translate(table) for w in stemmed_tokens]
-    stripped = list(chain(*[w.split() for w in stripped]))
-    
-    # remove empty tokens, stopwords and non-alphabetic tokens
-    stripped = [
-        token for token in stripped if token and token not in stop_words and token.isalpha()]
-    return ' '.join(stripped)
+  # remove empty tokens, stopwords and non-alphabetic tokens
+  stripped = [
+      token for token in stripped if token and token not in stop_words and token.isalpha()]
+  return stripped
+
 # main function to preprocess a directory of text files
 def preprocess_directory(directory, num_files=-1):
   preprocessed_documents = []
@@ -111,8 +92,7 @@ def preprocess_directory(directory, num_files=-1):
       break
   return preprocessed_documents
 
-
-
+# function to extract the topics from the topics file
 def extract_topics(file):
   with open(file, "r") as f:
     topic_content = f.read()
