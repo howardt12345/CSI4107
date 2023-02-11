@@ -28,12 +28,17 @@ def generate_index():
 
 # Check if the index exists, if not create it
 if not os.path.exists('./pd_index'):
+  print("Index does not exist, creating it...")
   indexref = generate_index()
 else:
+  print("Index exists, loading it...")
   indexref = pt.IndexFactory.of(os.path.abspath('./pd_index/data.properties'))
+print("Index loaded successfully!")
 
 # Create a retrieval model
-model = pt.BatchRetrieve(indexref, wmodel="TF_IDF", num_results=1000)
+weighting = "TF_IDF"
+print("Using weighting model:", weighting)
+model = pt.BatchRetrieve(indexref, wmodel=weighting, num_results=1000)
 
 # Query the model and write the results
 query_retrieve(model)
