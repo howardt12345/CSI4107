@@ -58,3 +58,37 @@ To run the program, run the following command:
 ```bash
 python main.py
 ```
+
+# Explanation of Algorithms
+
+
+
+
+# Testing and Results
+
+## Testing methodology
+
+
+
+## Results
+
+BM25:
+| Run | MAP score |
+| --- | --- |
+| Titles Only | 0.3183 |
+| Titles and Descriptions | 0.3214 |
+
+TF-IDF:
+| Run | MAP score |
+| --- | --- |
+| Titles Only | 0.3206 |
+| Titles and Descriptions | 0.3238 |
+
+### Discussion
+
+
+
+## Optimizations
+
+- Fine tuned the search parameters for retrieval to improve the MAP score
+  - Using the same preprocessing algorthm as the one used in preprocessing improved map scores by [amount for both BM25 and TF-IDF]
