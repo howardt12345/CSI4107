@@ -19,7 +19,9 @@ Shang Lin Heish, 300121996
 | Shang Lin Heish | **Retrieval and Ranking**, processing the 50 queries and writing the results to Results.txt, fine-tuning results |
 
 ## About the Program
-
+This program uses PyTerrier to index the documents and perform retrieval and ranking. The program also uses the NLTK library to preprocess the documents and queries.
+Preprocessing is done by iterating through the files in the provided `AP_collection`, finding the documents in each file, and then tokenizing the documents and queries. The documents and queries are then converted to lowercase, and stopwords from the provided stopwords file are removed. The documents are also stemmed using the PorterStemmer algorithm. The queries are also lemmatized using the WordNetLemmatizer algorithm.
+The documents are then indexed using PyTerrier. The queries are then processed and ranked using PyTerrier. The results are then written to a file called `Results.txt`.
 
 # Getting Started
 
@@ -56,6 +58,3 @@ To run the program, run the following command:
 ```bash
 python main.py
 ```
-
-# Results
-
