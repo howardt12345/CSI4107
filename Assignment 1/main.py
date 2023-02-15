@@ -35,18 +35,27 @@ else:
   indexref = pt.IndexFactory.of(os.path.abspath('./pd_index/data.properties'))
 print("Index loaded successfully!")
 
+# Retrieval and Ranking
+model = pt.BatchRetrieve(indexref, wmodel='TF_IDF', num_results=1000)
+query_retrieve(model, runid='results', descriptions=True, filename='Results.txt')
+
+
 # Using TF_IDF
 print("Using TF_IDF")
 tf_idf = pt.BatchRetrieve(indexref, wmodel='TF_IDF', num_results=1000)
 
-# Query the model and write the results
-query_retrieve(tf_idf, runid='tf_idf-titles', filename='Results-tf_idf-titles.txt')
-query_retrieve(tf_idf, runid='tf_idf-titles-descriptions', descriptions=True, filename='Results-tf_idf-titles-descriptions.txt')
+def testing():
+  # Query the model and write the results
+  query_retrieve(tf_idf, runid='tf_idf-titles', filename='Results-tf_idf-titles.txt')
+  query_retrieve(tf_idf, runid='tf_idf-titles-descriptions', descriptions=True, filename='Results-tf_idf-titles-descriptions.txt')
 
-# Using BM25
-print("Using BM25")
-bm25 = pt.BatchRetrieve(indexref, wmodel='BM25', num_results=1000)
+  # Using BM25
+  print("Using BM25")
+  bm25 = pt.BatchRetrieve(indexref, wmodel='BM25', num_results=1000)
 
-# Query the model and write the results
-query_retrieve(bm25, runid='bm25-titles', filename='Results-bm25-titles.txt')
-query_retrieve(bm25, runid='bm25-titles-descriptions', descriptions=True, filename='Results-bm25-titles-descriptions.txt')
+  # Query the model and write the results
+  query_retrieve(bm25, runid='bm25-titles', filename='Results-bm25-titles.txt')
+  query_retrieve(bm25, runid='bm25-titles-descriptions', descriptions=True, filename='Results-bm25-titles-descriptions.txt')
+
+# Run the testing function
+# testing()
