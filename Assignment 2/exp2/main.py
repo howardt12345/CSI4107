@@ -22,42 +22,6 @@ w2v = gensim.models.Word2Vec(newsVec, vector_size=100, window=5, min_count = 5, 
 query_retrieve(w2v, runid='w2v-titles', filename='Results-w2v-titles.txt')
 query_retrieve(w2v, runid='w2v-titles-descriptions', descriptions=True, filename='Results-w2v-titles-descriptions.txt')
 
-# if not pt.started():
-#   pt.init()
-# 
-# Function to generate the index
-# def generate_index():
-#   # Preprocess the collection
-#   preprocessed_documents = preprocess_directory('AP_collection/coll')
-
-#   # Create a dataframe from the preprocessed documents
-#   df = pd.DataFrame.from_records([doc.to_dict() for doc in preprocessed_documents])
-#   df.head()
-
-#   # Create a Terrier index from the dataframe
-#   pd_indexer = pt.IterDictIndexer(os.path.abspath('./pd_index'), overwrite=True)
-#   indexref = pd_indexer.index(df.to_dict(orient='records'))
-
-#   return indexref
-
-# # Check if the index exists, if not create it
-# if not os.path.exists('./pd_index'):
-#   print("Index does not exist, creating it...")
-#   indexref = generate_index()
-# else:
-#   print("Index exists, loading it...")
-#   indexref = pt.IndexFactory.of(os.path.abspath('./pd_index/data.properties'))
-# print("Index loaded successfully!")
-
-# # Retrieval and Ranking
-# model = pt.BatchRetrieve(indexref, wmodel='TF_IDF', num_results=1000)
-# query_retrieve(model, runid='results', descriptions=True, filename='Results.txt')
-
-
-# # Using TF_IDF
-# print("Using TF_IDF")
-# tf_idf = pt.BatchRetrieve(indexref, wmodel='TF_IDF', num_results=1000)
-
 # def testing():
 #   # Query the model and write the results
 #   query_retrieve(tf_idf, runid='tf_idf-titles', filename='Results-tf_idf-titles.txt')
