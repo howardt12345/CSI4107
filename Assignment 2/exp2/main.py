@@ -15,7 +15,7 @@ newsTitles = df["title"].values
 newsVec = [nltk.word_tokenize(title) for title in newsTitles]
 
 # Using Word2Vec and Skip Gram
-w2v = gensim.models.Word2Vec(newsVec, vector_size=32, min_count = 1)
+w2v = gensim.models.Word2Vec(newsVec, vector_size=100, window=5, min_count = 5, workers=8, sg=1)
 
 # if not pt.started():
 #   pt.init()
