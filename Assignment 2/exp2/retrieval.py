@@ -41,4 +41,4 @@ def query(model, topic, descriptions=False):
     t += " " + \
         " ".join(preprocess_text(
             topic['description'], stem=False, stopwords=False))
-  return model.search(t)
+  return model.wv.most_similar(t)
