@@ -17,6 +17,11 @@ newsVec = [nltk.word_tokenize(title) for title in newsTitles]
 # Using Word2Vec and Skip Gram
 w2v = gensim.models.Word2Vec(newsVec, vector_size=100, window=5, min_count = 5, workers=8, sg=1)
 
+# Print results
+# Still can't work because missing keys?
+query_retrieve(w2v, runid='w2v-titles', filename='Results-w2v-titles.txt')
+query_retrieve(w2v, runid='w2v-titles-descriptions', descriptions=True, filename='Results-w2v-titles-descriptions.txt')
+
 # if not pt.started():
 #   pt.init()
 # 
