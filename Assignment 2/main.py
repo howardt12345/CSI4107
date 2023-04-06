@@ -16,9 +16,27 @@ print(torch.cuda.get_device_name(0))
 preprocessed_documents = preprocess_directory('AP_collection/coll')
 
 model_names = [
-  'all-mpnet-base-v2',
-  'msmarco-distilbert-cos-v5',
+  # 'all-distilroberta-v1',
+  # 'all-MiniLM-L12-v2',
+  # 'all-mpnet-base-v2',
+  # 'msmarco-distilbert-cos-v5',
+  # 'multi-qa-distilbert-cos-v1',
+  # 'multi-qa-MiniLM-L6-cos-v1',
+  # 'multi-qa-mpnet-base-dot-v1'
+  'all-MiniLM-L6-v2',
+  'all-roberta-large-v1',
+  'all-distilroberta-v1',
+  'paraphrase-multilingual-mpnet-base-v2',
+  'paraphrase-albert-small-v2',
+  'paraphrase-MiniLM-L3-v2',
+  'msmarco-MiniLM-L12-cos-v5'
 ]
+
+model_names.sort()
+
+# list the models to be used, separated by new lines
+print('Models to be used:\n-', '\n- '.join(model_names))
+
 
 for model_name in model_names:
   # Print the model name
