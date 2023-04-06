@@ -6,10 +6,10 @@ import gzip
 from sentence_transformers import SentenceTransformer
 from preprocessing import preprocess_directory
 from retrieval import query_retrieve
-import subprocess, sys    
+import subprocess, sys
 
-print(torch.cuda.is_available())
-print(torch.cuda.current_device())
+print(f'Cuda available: {torch.cuda.is_available()}')
+print(f'Current device: {torch.cuda.current_device()}')
 print(torch.cuda.get_device_name(0))
 
 # Preprocess the collection

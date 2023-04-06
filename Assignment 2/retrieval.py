@@ -2,7 +2,7 @@
 import re
 
 import scipy
-from preprocessing import preprocess_text
+# from preprocessing import preprocess_text
 
 # function to extract the topics from the topics file
 def extract_topics(file, descriptions=False):

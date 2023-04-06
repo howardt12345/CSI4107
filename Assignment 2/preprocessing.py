@@ -1,12 +1,12 @@
 # Functions and classes for preprocessing the data
 from itertools import chain
-from nltk.stem import PorterStemmer
-from nltk.tokenize import word_tokenize
 import string
 import re
 import os
-import nltk
-nltk.download('punkt')
+# import nltk
+# from nltk.stem import PorterStemmer
+# from nltk.tokenize import word_tokenize
+# nltk.download('punkt')
 
 class Document:
   def __init__(self, doc_no, doc_text):
@@ -50,37 +50,37 @@ def preprocess(file):
     preprocessed_documents.append(doc)
   return preprocessed_documents
 
-# function to preprocess a single text string
-def preprocess_text(text: str, stem=True, stopwords=True):
-    # lowercase the text
-  text = text.lower()
+# # function to preprocess a single text string
+# def preprocess_text(text: str, stem=True, stopwords=True):
+#     # lowercase the text
+#   text = text.lower()
 
-  # tokenize the text
-  tokens = word_tokenize(text)
-  # remove stopwords
-  if stopwords:
-    tokens = [token for token in tokens if token not in stop_words]
-  # stem the tokens
-  if stem:
-    # apply the porter stemmer
-    stemmer = PorterStemmer()
-    tokens = [stemmer.stem(token) for token in tokens]
-  # remove punctuation
-  table = str.maketrans(string.punctuation, ' '*len(string.punctuation))
-  stripped = [w.translate(table) for w in tokens]
-  stripped = list(chain(*[w.split() for w in stripped]))
+#   # tokenize the text
+#   tokens = word_tokenize(text)
+#   # remove stopwords
+#   if stopwords:
+#     tokens = [token for token in tokens if token not in stop_words]
+#   # stem the tokens
+#   if stem:
+#     # apply the porter stemmer
+#     stemmer = PorterStemmer()
+#     tokens = [stemmer.stem(token) for token in tokens]
+#   # remove punctuation
+#   table = str.maketrans(string.punctuation, ' '*len(string.punctuation))
+#   stripped = [w.translate(table) for w in tokens]
+#   stripped = list(chain(*[w.split() for w in stripped]))
 
-  # remove empty tokens, stopwords (if applicable) and non-alphabetic tokens
-  stripped = [
-      token for token in stripped if token and (token not in stop_words if stopwords else True) and token.isalpha()]
-  return stripped
+#   # remove empty tokens, stopwords (if applicable) and non-alphabetic tokens
+#   stripped = [
+#       token for token in stripped if token and (token not in stop_words if stopwords else True) and token.isalpha()]
+#   return stripped
 
 # main function to preprocess a directory of text files
 def preprocess_directory(directory, num_files=-1):
   preprocessed_documents = []
   ctr = 0
   for filename in os.listdir(directory):
-    print('Preprocessing file: ', filename)
+    # print('Preprocessing file: ', filename)
     file = os.path.join(directory, filename)
     preprocessed_documents.extend(preprocess(file))
     ctr += 1
