@@ -9,16 +9,15 @@ import nltk
 nltk.download('punkt')
 
 class Document:
-  def __init__(self, doc_no, doc_text, tokens):
+  def __init__(self, doc_no, doc_text):
     self.doc_no = doc_no
     self.doc_text = doc_text
-    self.tokens = tokens
 
   def __str__(self):
-    return 'Document Number: ' + self.doc_no + '\nDocument Text: ' + self.doc_text + '\nTokens: ' + str(self.tokens) + '\n'
+    return 'Document Number: ' + self.doc_no + '\nDocument Text: ' + self.doc_text
 
   def to_dict(self):
-    return {'docno': self.doc_no, 'doctext': self.doc_text, 'tokens': self.tokens, 'text': ' '.join(self.tokens)}
+    return {'docno': self.doc_no, 'doctext': self.doc_text}
 
 # Get the stop words
 def get_stop_words():
@@ -47,7 +46,7 @@ def preprocess(file):
     doc_text = raw_text.string if raw_text else ''
 
     # create a document object
-    doc = Document(doc_no, doc_text, preprocess_text(doc_text))
+    doc = Document(doc_no, doc_text)
     preprocessed_documents.append(doc)
   return preprocessed_documents
 

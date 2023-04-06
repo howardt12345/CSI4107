@@ -1,61 +1,59 @@
-
-from retrieval import query_retrieve
-import pyterrier as pt
-import pandas as pd
+# Functions and classes for preprocessing the data
 import os
-import nltk
-nltk.download('punkt')
+import torch
+import pickle
+import gzip
+from sentence_transformers import SentenceTransformer
 from preprocessing import preprocess_directory
+from retrieval import query_retrieve
+import subprocess, sys    
 
+print(torch.cuda.is_available())
+print(torch.cuda.current_device())
+print(torch.cuda.get_device_name(0))
 
-if not pt.started():
-  pt.init()
+# Preprocess the collection
+preprocessed_documents = preprocess_directory('AP_collection/coll')
 
-# Function to generate the index
-def generate_index():
-  # Preprocess the collection
-  preprocessed_documents = preprocess_directory('AP_collection/coll')
+model_names = [
+  'all-mpnet-base-v2',
+  'msmarco-distilbert-cos-v5',
+]
 
-  # Create a dataframe from the preprocessed documents
-  df = pd.DataFrame.from_records([doc.to_dict() for doc in preprocessed_documents])
-  df.head()
+for model_name in model_names:
+  # Print the model name
+  print(f'---\nModel: {model_name}')
+  # Load the model
+  model = SentenceTransformer(f'sentence-transformers/{model_name}', device='cuda:0')
 
-  # Create a Terrier index from the dataframe
-  pd_indexer = pt.IterDictIndexer(os.path.abspath('./pd_index'), overwrite=True)
-  indexref = pd_indexer.index(df.to_dict(orient='records'))
+  # If the embeddings have already been computed, load them
+  if os.path.exists(f"embedding_saves/{model_name}.pickle.gz"):
+    # print the message
+    print(f'Loading embeddings from file: embedding_saves/{model_name}.pickle.gz')
+    # unzip the pickle file 
+    with gzip.open(f"embedding_saves/{model_name}.pickle.gz", 'rb') as f_in:
+      doc_embeddings = pickle.load(f_in)
+  else:
+    # print the message
+    print(f'Embeddings not found, computing {model_name}')
+    # Compute the embeddings
+    doc_embeddings = model.encode([doc.doc_text for doc in preprocessed_documents], show_progress_bar=True)
+    # print the message
+    print(f'Embeddings computed, saving to file: embedding_saves/{model_name}.pickle.gz')
+    # store the embeddings in a pickle file
+    with open(f"embedding_saves/{model_name}.pickle", 'wb') as f:
+      pickle.dump(doc_embeddings, f)
+    # gzip the pickle file
+    with open(f"embedding_saves/{model_name}.pickle", 'rb') as f_in, gzip.open(f"embedding_saves/{model_name}.pickle.gz", 'wb') as f_out:
+      f_out.writelines(f_in)
 
-  return indexref
+  # print the message
+  print(f'Computing results for {model_name}')
+  # Run the query_retrieve function
+  query_retrieve(model, preprocessed_documents, doc_embeddings, descriptions=False, runid='runid', filename=f'Results-{model_name}.txt', top_k=1000)
 
-# Check if the index exists, if not create it
-if not os.path.exists('./pd_index'):
-  print("Index does not exist, creating it...")
-  indexref = generate_index()
-else:
-  print("Index exists, loading it...")
-  indexref = pt.IndexFactory.of(os.path.abspath('./pd_index/data.properties'))
-print("Index loaded successfully!")
-
-# Retrieval and Ranking
-model = pt.BatchRetrieve(indexref, wmodel='TF_IDF', num_results=1000)
-query_retrieve(model, runid='results', descriptions=True, filename='Results.txt')
-
-
-# Using TF_IDF
-print("Using TF_IDF")
-tf_idf = pt.BatchRetrieve(indexref, wmodel='TF_IDF', num_results=1000)
-
-def testing():
-  # Query the model and write the results
-  query_retrieve(tf_idf, runid='tf_idf-titles', filename='Results-tf_idf-titles.txt')
-  query_retrieve(tf_idf, runid='tf_idf-titles-descriptions', descriptions=True, filename='Results-tf_idf-titles-descriptions.txt')
-
-  # Using BM25
-  print("Using BM25")
-  bm25 = pt.BatchRetrieve(indexref, wmodel='BM25', num_results=1000)
-
-  # Query the model and write the results
-  query_retrieve(bm25, runid='bm25-titles', filename='Results-bm25-titles.txt')
-  query_retrieve(bm25, runid='bm25-titles-descriptions', descriptions=True, filename='Results-bm25-titles-descriptions.txt')
-
-# Run the testing function
-# testing()
+  # Run the trec_eval command
+  p = subprocess.Popen(["powershell",f".\\trec_eval -m map qrels1-50ap.txt Results-{model_name}.txt"], stdout=sys.stdout)
+  p.communicate()
+  p = subprocess.Popen(["powershell",f".\\trec_eval -m P qrels1-50ap.txt Results-{model_name}.txt"], stdout=sys.stdout)
+  p.communicate()

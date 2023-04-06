@@ -1,5 +1,7 @@
 # Query and write to file
 import re
+
+import scipy
 from preprocessing import preprocess_text
 
 # function to extract the topics from the topics file
@@ -19,26 +21,30 @@ def extract_topics(file, descriptions=False):
       all_topics.append({'title': title})
   return all_topics
 
-# function to query the model and write the results to a file
-def query_retrieve(model, descriptions=False, runid='runid', filename='Results.txt'):
-  topics = extract_topics("topics1-50.txt", descriptions)
+def search(query, model, preprocessed_documents, doc_embeddings, top_k=20):
+  query_embeddings = model.encode([query])
+  # compute distances
+  distances = scipy.spatial.distance.cdist(query_embeddings, doc_embeddings, "cosine")[0]
+  # get the top k results
+  results = zip(range(len(distances)), distances)
+  results = sorted(results, key=lambda x: x[1])
+  # Create a list of tuples with the document number and the distance
+  results = [(preprocessed_documents[idx].doc_no, distance) for idx, distance in results[0:top_k]]
+  return results
 
-  bm_file_out = open(filename, 'w')
+
+# Go through all the documents and search for the top 1000 results
+def query_retrieve(model, preprocessed_documents, doc_embeddings, descriptions=False, runid='runid', filename='Results.txt', top_k=1000):
+  # Extract the topics
+  topics = extract_topics('topics1-50.txt', descriptions)
+
+  file_out = open(filename, 'w')
 
   for i, topic in enumerate(topics):
-    curr_result = query(model, topic, descriptions)
-    for j in range(len(curr_result)):
-      result_row = curr_result.iloc[j]
-      bm_file_out.write(str(i+1) + " " + "Q0 " + result_row['docno'] + " " + str(
-          result_row['rank']+1) + " " + str(result_row['score']) + " " + runid + "\n")
+    # Search for the documents
+    results = search(topic['title'], model, preprocessed_documents, doc_embeddings, top_k)
+    for j, (doc_id, distance) in enumerate(results):
+      file_out.write(f'{i+1} Q0 {doc_id.strip()} {j+1} {1-distance} {runid}\n')
+  file_out.close()
+  # print('Written results to file', filename)
 
-  bm_file_out.close()
-  print("Written results to file: " + filename)
-
-def query(model, topic, descriptions=False):
-  t = " ".join(preprocess_text(topic['title'], stem=False, stopwords=False))
-  if descriptions:
-    t += " " + \
-        " ".join(preprocess_text(
-            topic['description'], stem=False, stopwords=False))
-  return model.search(t)
