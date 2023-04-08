@@ -80,23 +80,26 @@ for model_name in model_names:
     # print the message
     logging.info(f'Embeddings not found, computing {model_name}')
     # Compute the embeddings
-    doc_embeddings = []
+    os.makedirs(f'embedding_saves/{model_name}', exist_ok=True)
     for x, doc in enumerate(preprocessed_documents):
       # Clear the cache
       torch.cuda.empty_cache()
       # get the embedding for the document if it exists, otherwise compute it
       if os.path.exists(f'embedding_saves/{model_name}/{doc.doc_no.strip()}.pickle'):
-        with open(f'embedding_saves/{model_name}/{doc.doc_no.strip()}.pickle', 'rb') as f:
-          doc_embed = pickle.load(f)
+        continue
       else:
         # Calculate embedding for each document
         logging.info(f'Embedding {doc.doc_no.strip()} {x}/{len(preprocessed_documents)}...')
         doc_embed = model.encode(doc.doc_text, show_progress_bar=False)
         # write the document embedding to a file
-        os.makedirs(f'embedding_saves/{model_name}', exist_ok=True)
         with open(f'embedding_saves/{model_name}/{doc.doc_no.strip()}.pickle', 'wb') as f:
           pickle.dump(doc_embed, f)
-      doc_embeddings.append(doc_embed)
+
+    # Read all the embeddings from the files in the directory
+    doc_embeddings = []
+    for filename in os.listdir(f'embedding_saves/{model_name}'):
+      with open(f'embedding_saves/{model_name}/{filename}', 'rb') as f:
+        doc_embeddings.append(pickle.load(f))
 
     # Save the embeddings
     doc_embeddings = np.array(doc_embeddings)
@@ -113,7 +116,7 @@ for model_name in model_names:
   # print the message
   logging.info(f'Computing results for {model_name}')
   # Run the query_retrieve function
-  query_retrieve(model, preprocessed_documents, doc_embeddings, descriptions=False, runid='runid', filename=f'Results-{model_name}.txt', top_k=1000)
+  query_retrieve(model_name, model, preprocessed_documents, doc_embeddings, descriptions=False, runid='runid', filename=f'Results-{model_name}.txt', top_k=1000)
 
   # Run the trec_eval command
   p = subprocess.Popen(["powershell",f".\\trec_eval -m map qrels1-50ap.txt Results-{model_name}.txt"], stdout=sys.stdout)

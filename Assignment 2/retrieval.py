@@ -1,5 +1,7 @@
 # Query and write to file
 import re
+import os
+import torch
 
 import scipy
 # from preprocessing import preprocess_text
@@ -21,8 +23,14 @@ def extract_topics(file, descriptions=False):
       all_topics.append({'title': title})
   return all_topics
 
-def search(query, model, preprocessed_documents, doc_embeddings, top_k=20):
-  query_embeddings = model.encode([query])
+def search(n, query, model_name, model, preprocessed_documents, doc_embeddings, top_k=20):
+  # Fetch the embeddings for the query if it exists, otherwise compute it
+  if os.path.exists(f'embedding_saves/{model_name}/query-{n}.pickle'):
+    query_embeddings = torch.load(f'embedding_saves/{model_name}/query-{n}.pickle')
+  else:
+    query_embeddings = model.encode([query])
+    os.makedirs(f'embedding_saves/{model_name}', exist_ok=True)
+    torch.save(query_embeddings, f'embedding_saves/{model_name}/query-{n}.pickle')
   # compute distances
   distances = scipy.spatial.distance.cdist(query_embeddings, doc_embeddings, "cosine")[0]
   # get the top k results
@@ -34,7 +42,7 @@ def search(query, model, preprocessed_documents, doc_embeddings, top_k=20):
 
 
 # Go through all the documents and search for the top 1000 results
-def query_retrieve(model, preprocessed_documents, doc_embeddings, descriptions=False, runid='runid', filename='Results.txt', top_k=1000):
+def query_retrieve(model_name, model, preprocessed_documents, doc_embeddings, descriptions=False, runid='runid', filename='Results.txt', top_k=1000):
   # Extract the topics
   topics = extract_topics('topics1-50.txt', descriptions)
 
@@ -42,7 +50,7 @@ def query_retrieve(model, preprocessed_documents, doc_embeddings, descriptions=F
 
   for i, topic in enumerate(topics):
     # Search for the documents
-    results = search(topic['title'], model, preprocessed_documents, doc_embeddings, top_k)
+    results = search(i, topic['title'], model_name, model, preprocessed_documents, doc_embeddings, top_k)
     for j, (doc_id, distance) in enumerate(results):
       file_out.write(f'{i+1} Q0 {doc_id.strip()} {j+1} {1-distance} {runid}\n')
   file_out.close()
