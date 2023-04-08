@@ -22,39 +22,40 @@ print(torch.cuda.get_device_name(0))
 
 # Preprocess the collection
 preprocessed_documents = preprocess_directory('AP_collection/coll')
+preprocessed_documents.sort(key=lambda x: x.doc_no)
 
 model_names = [
-  # 'all-MiniLM-L12-v2',
-  # 'all-MiniLM-L6-v2',
-  # 'all-distilroberta-v1',
-  # 'all-mpnet-base-v2',
-  # 'all-roberta-large-v1',
-  # 'msmarco-MiniLM-L12-cos-v5',
-  # 'msmarco-MiniLM-L6-cos-v5',
-  # 'msmarco-distilbert-base-tas-b',
-  # 'msmarco-distilbert-cos-v5',
-  # 'multi-qa-MiniLM-L6-cos-v1',
-  # 'multi-qa-distilbert-cos-v1',
-  # 'multi-qa-mpnet-base-dot-v1',
-  # 'nli-mpnet-base-v2',
-  # 'paraphrase-MiniLM-L3-v2',
-  # 'paraphrase-MiniLM-L6-v2',
-  # 'paraphrase-albert-small-v2',
-  # 'paraphrase-mpnet-base-v2',
-  # 'sentence-t5-base',
-  # 'stsb-mpnet-base-v2',
-  # 'bert-base-nli-mean-tokens',
-  # 'distilbert-base-nli-mean-tokens',
-  # 'distilbert-base-nli-stsb-mean-tokens',
-  # 'distiluse-base-multilingual-cased-v2',
-  # 'LaBSE',
-  # 'multi-qa-mpnet-base-cos-v1',
-  # 'paraphrase-distilroberta-base-v2',
-  # 'xlm-r-distilroberta-base-paraphrase-v1',
-  # 'gtr-t5-base',
-  # 'gtr-t5-large',
+  'all-MiniLM-L12-v2',
+  'all-MiniLM-L6-v2',
+  'all-distilroberta-v1',
+  'all-mpnet-base-v2',
+  'all-roberta-large-v1',
+  'msmarco-MiniLM-L12-cos-v5',
+  'msmarco-MiniLM-L6-cos-v5',
+  'msmarco-distilbert-base-tas-b',
+  'msmarco-distilbert-cos-v5',
+  'multi-qa-MiniLM-L6-cos-v1',
+  'multi-qa-distilbert-cos-v1',
+  'multi-qa-mpnet-base-dot-v1',
+  'nli-mpnet-base-v2',
+  'paraphrase-MiniLM-L3-v2',
+  'paraphrase-MiniLM-L6-v2',
+  'paraphrase-albert-small-v2',
+  'paraphrase-mpnet-base-v2',
+  'sentence-t5-base',
+  'stsb-mpnet-base-v2',
+  'bert-base-nli-mean-tokens',
+  'distilbert-base-nli-mean-tokens',
+  'distilbert-base-nli-stsb-mean-tokens',
+  'distiluse-base-multilingual-cased-v2',
+  'LaBSE',
+  'multi-qa-mpnet-base-cos-v1',
+  'paraphrase-distilroberta-base-v2',
+  'xlm-r-distilroberta-base-paraphrase-v1',
+  'gtr-t5-base',
+  'gtr-t5-large',
   'gtr-t5-xl',
-  # 'gtr-t5-xxl',
+  'gtr-t5-xxl',
 ]
 
 model_names.sort()
@@ -97,9 +98,16 @@ for model_name in model_names:
 
     # Read all the embeddings from the files in the directory
     doc_embeddings = []
-    for filename in os.listdir(f'embedding_saves/{model_name}'):
-      with open(f'embedding_saves/{model_name}/{filename}', 'rb') as f:
-        doc_embeddings.append(pickle.load(f))
+    for x, doc in enumerate(preprocessed_documents):
+      if x % 1000 == 0:
+        logging.info(f'{x}/{len(preprocessed_documents)}')
+      filename = doc.doc_no.strip()
+      if os.path.exists(f'embedding_saves/{model_name}/{filename}.pickle'):
+        # print(f'Loading embedding for {model_name}/{filename} {x}/{len(preprocessed_documents)}')
+        with open(f'embedding_saves/{model_name}/{filename}.pickle', 'rb') as f:
+          doc_embeddings.append(pickle.load(f))
+      else:
+        logging.info(f'Embedding for {model_name}/{filename} doesn\'t exist {x}/{len(preprocessed_documents)}')
 
     # Save the embeddings
     doc_embeddings = np.array(doc_embeddings)
