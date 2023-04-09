@@ -57,6 +57,40 @@ sentence_transformers = [
     'gtr-t5-xl',
     'gtr-t5-xxl',
 ]
+# redefine the above list, but with a device specified
+sentence_transformers = [
+    ('all-MiniLM-L12-v2', 'cuda:0'),
+    ('all-MiniLM-L6-v2', 'cuda:0'),
+    ('all-distilroberta-v1', 'cuda:0'),
+    ('all-mpnet-base-v2', 'cuda:0'),
+    ('all-roberta-large-v1', 'cuda:0'),
+    ('msmarco-MiniLM-L12-cos-v5', 'cuda:0'),
+    ('msmarco-MiniLM-L6-cos-v5', 'cuda:0'),
+    ('msmarco-distilbert-base-tas-b', 'cuda:0'),
+    ('msmarco-distilbert-cos-v5', 'cuda:0'),
+    ('multi-qa-MiniLM-L6-cos-v1', 'cuda:0'),
+    ('multi-qa-distilbert-cos-v1', 'cuda:0'),
+    ('multi-qa-mpnet-base-dot-v1', 'cuda:0'),
+    ('nli-mpnet-base-v2', 'cuda:0'),
+    ('paraphrase-MiniLM-L3-v2', 'cuda:0'),
+    ('paraphrase-MiniLM-L6-v2', 'cuda:0'),
+    ('paraphrase-albert-small-v2', 'cuda:0'),
+    ('paraphrase-mpnet-base-v2', 'cuda:0'),
+    ('sentence-t5-base', 'cuda:0'),
+    ('stsb-mpnet-base-v2', 'cuda:0'),
+    ('bert-base-nli-mean-tokens', 'cuda:0'),
+    ('distilbert-base-nli-mean-tokens', 'cuda:0'),
+    ('distilbert-base-nli-stsb-mean-tokens', 'cuda:0'),
+    ('distiluse-base-multilingual-cased-v2', 'cuda:0'),
+    ('LaBSE', 'cuda:0'),
+    ('multi-qa-mpnet-base-cos-v1', 'cuda:0'),
+    ('paraphrase-distilroberta-base-v2', 'cuda:0'),
+    ('xlm-r-distilroberta-base-paraphrase-v1', 'cuda:0'),
+    ('gtr-t5-base', 'cuda:0'),
+    ('gtr-t5-large', 'cuda:0'),
+    ('gtr-t5-xl', 'cuda:0'),
+    ('gtr-t5-xxl', 'cpu'),
+]
 muennighoff = [
     'SGPT-125M-weightedmean-nli-bitfit',
     # 'SGPT-5.8B-weightedmean-msmarco-specb-bitfit',
@@ -66,7 +100,7 @@ muennighoff = [
 ]
 
 
-sentence_transformers.sort()
+sentence_transformers.sort(key=lambda x: x[0])
 muennighoff.sort()
 
 models = {
@@ -75,25 +109,22 @@ models = {
 }
 
 # list the models to be used, separated by new lines
-print('Models to be used:\n-', '\n- '.join(sentence_transformers))
+print('Models to be used:\n-', '\n- '.join([x[0] for x in sentence_transformers]))
 
 embed_each_document = False
+descriptions = False
 
 for lib, value in models.items():
-  for model_name in value:
-    # Print the model name
-    print(f'---\nModel: {model_name}')
+  for v in value:
+    model_name, device = v
+    print(f'---\nModel: {model_name}{" (descriptions)" if descriptions else ""}')
     # Load the model
-    try:
-      model = SentenceTransformer(
-          f'{lib}/{model_name}', device='cuda:0', cache_folder='./.cache')
-    except:
-      model = SentenceTransformer(
-          f'{lib}/{model_name}', device='cpu', cache_folder='./.cache')
+    torch.cuda.empty_cache()
+    logging.info(f'Using device: {device}')
+    model = SentenceTransformer(f'{lib}/{model_name}', device=device, cache_folder='./.cache')
 
     # If the embeddings have already been computed, load them
     if os.path.exists(f"embedding_saves/{lib}/{model_name}.pickle.gz"):
-      # print the message
       logging.info(
           f'Loading embeddings from file: embedding_saves/{lib}/{model_name}.pickle.gz')
       # unzip the pickle file
@@ -101,7 +132,6 @@ for lib, value in models.items():
         doc_embeddings = pickle.load(f_in)
     else:
       if embed_each_document:
-        # print the message
         logging.info(f'Embeddings not found, computing {model_name}')
         # Compute the embeddings
         os.makedirs(f'embedding_saves/{lib}/{model_name}', exist_ok=True)
@@ -137,13 +167,11 @@ for lib, value in models.items():
         # Save the embeddings
         doc_embeddings = np.array(doc_embeddings)
       else:
-        # print the message
         logging.info(f'Embeddings not found, computing {model_name}')
         # Compute the embeddings
         doc_embeddings = model.encode(
             [doc.doc_text for doc in preprocessed_documents], show_progress_bar=True)
 
-      # print the message
       logging.info(
           f'Embeddings computed, saving to file: embedding_saves/{lib}/{model_name}.pickle.gz')
       # store the embeddings in a pickle file
@@ -153,10 +181,8 @@ for lib, value in models.items():
       with open(f"embedding_saves/{lib}/{model_name}.pickle", 'rb') as f_in, gzip.open(f"embedding_saves/{lib}/{model_name}.pickle.gz", 'wb') as f_out:
         f_out.writelines(f_in)
 
-    # print the message
     logging.info(f'Computing results for {model_name}')
     # Run the query_retrieve function
-    descriptions = False
     query_retrieve(f'{lib}/{model_name}', model, preprocessed_documents, doc_embeddings, descriptions,
                    runid='runid', filename=f'results/Results-{model_name}{"-descriptions" if descriptions else ""}.txt', top_k=1000)
 
