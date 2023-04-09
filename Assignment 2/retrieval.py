@@ -23,14 +23,18 @@ def extract_topics(file, descriptions=False):
       all_topics.append({'title': title})
   return all_topics
 
-def search(n, query, model_name, model, preprocessed_documents, doc_embeddings, top_k=20):
+def search(n, topic, model_name, model, preprocessed_documents, doc_embeddings, descriptions=False, top_k=20):
+  # Get the query
+  query = topic['title']
+  if descriptions:
+    query += ' ' + topic['description']
   # Fetch the embeddings for the query if it exists, otherwise compute it
-  if os.path.exists(f'embedding_saves/{model_name}/query-{n}.pickle'):
-    query_embeddings = torch.load(f'embedding_saves/{model_name}/query-{n}.pickle')
-  else:
-    query_embeddings = model.encode([query])
-    os.makedirs(f'embedding_saves/{model_name}', exist_ok=True)
-    torch.save(query_embeddings, f'embedding_saves/{model_name}/query-{n}.pickle')
+  # if os.path.exists(f'embedding_saves/{model_name}/query-{n}{"-descriptions" if descriptions else ""}.pickle'):
+  #   query_embeddings = torch.load(f'embedding_saves/{model_name}/query-{n}{"-descriptions" if descriptions else ""}.pickle')
+  # else:
+  query_embeddings = model.encode([query])
+  os.makedirs(f'embedding_saves/{model_name}', exist_ok=True)
+  torch.save(query_embeddings, f'embedding_saves/{model_name}/query-{n}{"-descriptions" if descriptions else ""}.pickle')
   # compute distances
   distances = scipy.spatial.distance.cdist(query_embeddings, doc_embeddings, "cosine")[0]
   # get the top k results
@@ -50,7 +54,7 @@ def query_retrieve(model_name, model, preprocessed_documents, doc_embeddings, de
 
   for i, topic in enumerate(topics):
     # Search for the documents
-    results = search(i, topic['title'], model_name, model, preprocessed_documents, doc_embeddings, top_k)
+    results = search(i, topic, model_name, model, preprocessed_documents, doc_embeddings, descriptions, top_k)
     for j, (doc_id, distance) in enumerate(results):
       file_out.write(f'{i+1} Q0 {doc_id.strip()} {j+1} {1-distance} {runid}\n')
   file_out.close()
