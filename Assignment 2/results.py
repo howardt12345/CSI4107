@@ -45,13 +45,17 @@ n = 10
 print(f'---\nTop {n} models by MAP:')
 # compare the results
 for x, model in enumerate(sorted(all, key=lambda x: x.map, reverse=True)[0:n]):
-  print(f"{x+1}. {model.model}: {model.map} (description: {all_description_map[model.model].map})")
+  print(f"{x+1}. {model.model}: {model.map} (w/description: {all_description_map[model.model].map})")
 
 print(f'---\nTop {n} models by P@10:')
 for x, model in enumerate(sorted(all, key=lambda x: x.P_10, reverse=True)[0:n]):
-  print(f"{x+1}. {model.model}: {model.P_10} (description: {all_description_map[model.model].P_10})")
+  print(f"{x+1}. {model.model}: {model.P_10} (w/description: {all_description_map[model.model].P_10})")
+
+# get the best overall model
+best_model = sorted(all, key=lambda x: x.map+x.P_10, reverse=True)[0]
+print(f'---\nBest model overall: {best_model.model} (MAP: {best_model.map}, P@10: {best_model.P_10})')
 
 # print the rest of the models in a single line
 print(f'---\nRest of the models:')
 for x, model in enumerate(sorted(all, key=lambda x: x.map, reverse=True)[n:]):
-  print(f"{x+n+1}. {model.model}: {model.map} (description: {all_description_map[model.model].map})")
+  print(f"{x+n+1}. {model.model}: {model.map}, {model.P_10} (w/description: {all_description_map[model.model].map}, {all_description_map[model.model].P_10})")
