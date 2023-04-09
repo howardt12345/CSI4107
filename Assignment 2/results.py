@@ -1,5 +1,3 @@
-import os
-
 
 class TextData:
   def __init__(self, text):
@@ -52,3 +50,8 @@ for x, model in enumerate(sorted(all, key=lambda x: x.map, reverse=True)[0:n]):
 print(f'---\nTop {n} models by P@10:')
 for x, model in enumerate(sorted(all, key=lambda x: x.P_10, reverse=True)[0:n]):
   print(f"{x+1}. {model.model}: {model.P_10} (description: {all_description_map[model.model].P_10})")
+
+# print the rest of the models in a single line
+print(f'---\nRest of the models:')
+for x, model in enumerate(sorted(all, key=lambda x: x.map, reverse=True)[n:]):
+  print(f"{x+n+1}. {model.model}: {model.map} (description: {all_description_map[model.model].map})")

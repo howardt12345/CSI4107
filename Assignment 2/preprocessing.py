@@ -1,13 +1,6 @@
 # Functions and classes for preprocessing the data
-from itertools import chain
-import string
 import re
 import os
-# import nltk
-# from nltk.stem import PorterStemmer
-# from nltk.tokenize import word_tokenize
-# nltk.download('punkt')
-
 class Document:
   def __init__(self, doc_no, doc_text):
     self.doc_no = doc_no
@@ -18,19 +11,6 @@ class Document:
 
   def to_dict(self):
     return {'docno': self.doc_no, 'doctext': self.doc_text}
-
-# Get the stop words
-def get_stop_words():
-  stopwords = set()
-  # Open the stop words and add them to the set
-  with open('StopWords.txt', 'r') as file:
-    for line in file:
-      stopwords.add(line.strip())
-  return stopwords
-
-
-# load the stopwords
-stop_words = get_stop_words()
 
 # function to perform preprocessing on the text
 def preprocess(file):
@@ -49,31 +29,6 @@ def preprocess(file):
     doc = Document(doc_no, doc_text)
     preprocessed_documents.append(doc)
   return preprocessed_documents
-
-# # function to preprocess a single text string
-# def preprocess_text(text: str, stem=True, stopwords=True):
-#     # lowercase the text
-#   text = text.lower()
-
-#   # tokenize the text
-#   tokens = word_tokenize(text)
-#   # remove stopwords
-#   if stopwords:
-#     tokens = [token for token in tokens if token not in stop_words]
-#   # stem the tokens
-#   if stem:
-#     # apply the porter stemmer
-#     stemmer = PorterStemmer()
-#     tokens = [stemmer.stem(token) for token in tokens]
-#   # remove punctuation
-#   table = str.maketrans(string.punctuation, ' '*len(string.punctuation))
-#   stripped = [w.translate(table) for w in tokens]
-#   stripped = list(chain(*[w.split() for w in stripped]))
-
-#   # remove empty tokens, stopwords (if applicable) and non-alphabetic tokens
-#   stripped = [
-#       token for token in stripped if token and (token not in stop_words if stopwords else True) and token.isalpha()]
-#   return stripped
 
 # main function to preprocess a directory of text files
 def preprocess_directory(directory, num_files=-1):

@@ -111,7 +111,7 @@ sentence_transformers.sort(key=lambda x: x[0])
 muennighoff.sort()
 
 models = {
-    # 'sentence-transformers': sentence_transformers,
+    'sentence-transformers': sentence_transformers,
     'Muennighoff': muennighoff,
 }
 
