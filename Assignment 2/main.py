@@ -25,40 +25,6 @@ preprocessed_documents = preprocess_directory('AP_collection/coll')
 preprocessed_documents.sort(key=lambda x: x.doc_no)
 
 sentence_transformers = [
-    'all-MiniLM-L12-v2',
-    'all-MiniLM-L6-v2',
-    'all-distilroberta-v1',
-    'all-mpnet-base-v2',
-    'all-roberta-large-v1',
-    'msmarco-MiniLM-L12-cos-v5',
-    'msmarco-MiniLM-L6-cos-v5',
-    'msmarco-distilbert-base-tas-b',
-    'msmarco-distilbert-cos-v5',
-    'multi-qa-MiniLM-L6-cos-v1',
-    'multi-qa-distilbert-cos-v1',
-    'multi-qa-mpnet-base-dot-v1',
-    'nli-mpnet-base-v2',
-    'paraphrase-MiniLM-L3-v2',
-    'paraphrase-MiniLM-L6-v2',
-    'paraphrase-albert-small-v2',
-    'paraphrase-mpnet-base-v2',
-    'sentence-t5-base',
-    'stsb-mpnet-base-v2',
-    'bert-base-nli-mean-tokens',
-    'distilbert-base-nli-mean-tokens',
-    'distilbert-base-nli-stsb-mean-tokens',
-    'distiluse-base-multilingual-cased-v2',
-    'LaBSE',
-    'multi-qa-mpnet-base-cos-v1',
-    'paraphrase-distilroberta-base-v2',
-    'xlm-r-distilroberta-base-paraphrase-v1',
-    'gtr-t5-base',
-    'gtr-t5-large',
-    'gtr-t5-xl',
-    'gtr-t5-xxl',
-]
-# redefine the above list, but with a device specified
-sentence_transformers = [
     ('all-MiniLM-L12-v2', 'cuda:0'),
     ('all-MiniLM-L6-v2', 'cuda:0'),
     ('all-distilroberta-v1', 'cuda:0'),
@@ -118,8 +84,7 @@ descriptions = True
 for lib, value in models.items():
   for v in value:
     model_name, device = v
-    print(
-        f'---\nModel: {model_name}{" (descriptions)" if descriptions else ""}')
+    print(f'---\nModel: {model_name}{" (descriptions)" if descriptions else ""}')
     # Load the model
     torch.cuda.empty_cache()
     logging.info(f'Using device: {device}')
@@ -127,22 +92,27 @@ for lib, value in models.items():
         f'{lib}/{model_name}', device=device, cache_folder='./.cache')
 
     # If the embeddings have already been computed, load them
-    if os.path.exists(f"embedding_saves/{lib}/{model_name}.pickle.gz"):
+    model_dir = f'embedding_saves/{lib}/{model_name}'
+    model_pickle = f'{model_dir}.pickle'
+    model_pickle_gz = f'{model_dir}.pickle.gz'
+
+    if os.path.exists(model_pickle_gz):
       logging.info(
-          f'Loading embeddings from file: embedding_saves/{lib}/{model_name}.pickle.gz')
+          f'Loading embeddings from file: {model_pickle_gz} (unzipped: {model_pickle})')
       # unzip the pickle file
-      with gzip.open(f"embedding_saves/{lib}/{model_name}.pickle.gz", 'rb') as f_in:
+      with gzip.open(model_pickle_gz, 'rb') as f_in:
         doc_embeddings = pickle.load(f_in)
     else:
       if embed_each_document:
         logging.info(f'Embeddings not found, computing {model_name}')
         # Compute the embeddings
-        os.makedirs(f'embedding_saves/{lib}/{model_name}', exist_ok=True)
+        os.makedirs(model_dir, exist_ok=True)
         for x, doc in enumerate(preprocessed_documents):
           # Clear the cache
           torch.cuda.empty_cache()
           # get the embedding for the document if it exists, otherwise compute it
-          if os.path.exists(f'embedding_saves/{lib}/{model_name}/{doc.doc_no.strip()}.pickle'):
+          doc_embed_filename = f'{model_dir}/{doc.doc_no.strip()}.pickle'
+          if os.path.exists(doc_embed_filename):
             continue
           else:
             # Calculate embedding for each document
@@ -150,7 +120,7 @@ for lib, value in models.items():
                 f'Embedding {doc.doc_no.strip()} {x}/{len(preprocessed_documents)}...')
             doc_embed = model.encode(doc.doc_text, show_progress_bar=False)
             # write the document embedding to a file
-            with open(f'embedding_saves/{lib}/{model_name}/{doc.doc_no.strip()}.pickle', 'wb') as f:
+            with open(doc_embed_filename, 'wb') as f:
               pickle.dump(doc_embed, f)
 
         # Read all the embeddings from the files in the directory
@@ -159,9 +129,10 @@ for lib, value in models.items():
           if x % 1000 == 0:
             logging.info(f'{x}/{len(preprocessed_documents)}')
           filename = doc.doc_no.strip()
-          if os.path.exists(f'embedding_saves/{lib}/{model_name}/{filename}.pickle'):
+          doc_embed_filename = f'{model_dir}/{doc.doc_no.strip()}.pickle'
+          if os.path.exists(doc_embed_filename):
             # print(f'Loading embedding for {model_name}/{filename} {x}/{len(preprocessed_documents)}')
-            with open(f'embedding_saves/{lib}/{model_name}/{filename}.pickle', 'rb') as f:
+            with open(doc_embed_filename, 'rb') as f:
               doc_embeddings.append(pickle.load(f))
           else:
             logging.info(
@@ -176,12 +147,12 @@ for lib, value in models.items():
             [doc.doc_text for doc in preprocessed_documents], show_progress_bar=True)
 
       logging.info(
-          f'Embeddings computed, saving to file: embedding_saves/{lib}/{model_name}.pickle.gz')
+          f'Embeddings computed, saving to file: {model_pickle_gz}')
       # store the embeddings in a pickle file
-      with open(f"embedding_saves/{lib}/{model_name}.pickle", 'wb') as f:
+      with open(model_pickle, 'wb') as f:
         pickle.dump(np.array(doc_embeddings), f)
       # gzip the pickle file
-      with open(f"embedding_saves/{lib}/{model_name}.pickle", 'rb') as f_in, gzip.open(f"embedding_saves/{lib}/{model_name}.pickle.gz", 'wb') as f_out:
+      with open(model_pickle, 'rb') as f_in, gzip.open(model_pickle_gz, 'wb') as f_out:
         f_out.writelines(f_in)
 
     logging.info(f'Computing results for {model_name}')
