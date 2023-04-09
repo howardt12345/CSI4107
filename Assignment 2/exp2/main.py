@@ -1,21 +1,27 @@
 
 from retrieval import query_retrieve
-import pyterrier as pt
+# import pyterrier as pt
 import pandas as pd
 import os
 import nltk
 nltk.download('punkt')
 import gensim
-from gensim.models import Word2Vec
+from gensim.models import Word2Vec, KeyedVectors
 from preprocessing import preprocess_directory
 
 # Training the model
-df = pd.read_csv('redditWorldNews.csv')
-newsTitles = df["title"].values
-newsVec = [nltk.word_tokenize(title) for title in newsTitles]
+# df = pd.read_csv('redditWorldNews.csv')
+# newsTitles = df["title"].values
+# newsVec = [nltk.word_tokenize(title) for title in newsTitles]
+
+preprocessed_documents = preprocess_directory('AP_collection/coll')
+# Create a dataframe from the preprocessed documents
+dfdoc = pd.DataFrame.from_records([doc.to_dict() for doc in preprocessed_documents])
+dfdoclist
+print(dfdoc)
 
 # Using Word2Vec and Skip Gram
-w2v = gensim.models.Word2Vec(newsVec, vector_size=100, window=5, min_count = 5, workers=8, sg=1)
+w2v = gensim.models.Word2Vec(dfdoc, vector_size=100, window=5, min_count = 5, workers=8, sg=1)
 
 # Print results
 # Still can't work because missing keys?
