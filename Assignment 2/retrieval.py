@@ -28,13 +28,14 @@ def search(n, topic, model_name, model, preprocessed_documents, doc_embeddings, 
   query = topic['title']
   if descriptions:
     query += ' ' + topic['description']
+  filename = f'embedding_saves/{model_name}/query-{n}{"-descriptions" if descriptions else ""}.pickle'
   # Fetch the embeddings for the query if it exists, otherwise compute it
-  # if os.path.exists(f'embedding_saves/{model_name}/query-{n}{"-descriptions" if descriptions else ""}.pickle'):
-  #   query_embeddings = torch.load(f'embedding_saves/{model_name}/query-{n}{"-descriptions" if descriptions else ""}.pickle')
-  # else:
-  query_embeddings = model.encode([query])
-  os.makedirs(f'embedding_saves/{model_name}', exist_ok=True)
-  torch.save(query_embeddings, f'embedding_saves/{model_name}/query-{n}{"-descriptions" if descriptions else ""}.pickle')
+  if os.path.exists(filename):
+    query_embeddings = torch.load(filename)
+  else:
+    query_embeddings = model.encode([query])
+    os.makedirs(f'embedding_saves/{model_name}', exist_ok=True)
+    torch.save(query_embeddings, filename)
   # compute distances
   distances = scipy.spatial.distance.cdist(query_embeddings, doc_embeddings, "cosine")[0]
   # get the top k results
