@@ -109,19 +109,22 @@ models = {
 }
 
 # list the models to be used, separated by new lines
-print('Models to be used:\n-', '\n- '.join([x[0] for x in sentence_transformers]))
+print('Models to be used:\n-',
+      '\n- '.join([x[0] for x in sentence_transformers]))
 
 embed_each_document = False
-descriptions = False
+descriptions = True
 
 for lib, value in models.items():
   for v in value:
     model_name, device = v
-    print(f'---\nModel: {model_name}{" (descriptions)" if descriptions else ""}')
+    print(
+        f'---\nModel: {model_name}{" (descriptions)" if descriptions else ""}')
     # Load the model
     torch.cuda.empty_cache()
     logging.info(f'Using device: {device}')
-    model = SentenceTransformer(f'{lib}/{model_name}', device=device, cache_folder='./.cache')
+    model = SentenceTransformer(
+        f'{lib}/{model_name}', device=device, cache_folder='./.cache')
 
     # If the embeddings have already been computed, load them
     if os.path.exists(f"embedding_saves/{lib}/{model_name}.pickle.gz"):
@@ -182,16 +185,17 @@ for lib, value in models.items():
         f_out.writelines(f_in)
 
     logging.info(f'Computing results for {model_name}')
+    filename = f'results/Results-{model_name}{"-descriptions" if descriptions else ""}.txt'
     # Run the query_retrieve function
-    query_retrieve(f'{lib}/{model_name}', model, preprocessed_documents, doc_embeddings, descriptions,
-                   runid='runid', filename=f'results/Results-{model_name}{"-descriptions" if descriptions else ""}.txt', top_k=1000)
+    query_retrieve(f'{lib}/{model_name}', model, preprocessed_documents, doc_embeddings, descriptions=descriptions,
+                   runid=f'{model_name}{"-descriptions" if descriptions else ""}', filename=filename, top_k=1000)
 
     # Run the trec_eval command
     p = subprocess.Popen(
-        ["powershell", f".\\trec_eval -m map qrels1-50ap.txt results/Results-{model_name}.txt"], stdout=sys.stdout)
+        ["powershell", f".\\trec_eval -m map qrels1-50ap.txt {filename}"], stdout=sys.stdout)
     p.communicate()
     p = subprocess.Popen(
-        ["powershell", f".\\trec_eval -m P qrels1-50ap.txt results/Results-{model_name}.txt"], stdout=sys.stdout)
+        ["powershell", f".\\trec_eval -m P qrels1-50ap.txt {filename}"], stdout=sys.stdout)
     p.communicate()
 
 print('---\nDone')
