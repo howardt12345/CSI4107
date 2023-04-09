@@ -30,16 +30,25 @@ def read_results(filename):
       models.append(model_data)
   return models
 
-all = read_results("sgpt-test.txt")
-all_description = read_results("sgpt-descriptions.txt")
+all = read_results("all.txt")
+all_description = read_results("all-descriptions.txt")
+sgpt = read_results("sgpt-test.txt")
+sgpt_description = read_results("sgpt-descriptions.txt")
+
+# combine the lists
+all.extend(sgpt)
+all_description.extend(sgpt_description)
+
 all_map = {x.model: x for x in all}
 all_description_map = {x.model: x for x in all_description}
 
-print('---\nTop 5 models by MAP:')
+n = 10
+
+print(f'---\nTop {n} models by MAP:')
 # compare the results
-for x, model in enumerate(sorted(all, key=lambda x: x.map, reverse=True)[0:5]):
+for x, model in enumerate(sorted(all, key=lambda x: x.map, reverse=True)[0:n]):
   print(f"{x+1}. {model.model}: {model.map} (description: {all_description_map[model.model].map})")
 
-print('---\nTop 5 models by P@10:')
-for x, model in enumerate(sorted(all, key=lambda x: x.P_10, reverse=True)[0:5]):
+print(f'---\nTop {n} models by P@10:')
+for x, model in enumerate(sorted(all, key=lambda x: x.P_10, reverse=True)[0:n]):
   print(f"{x+1}. {model.model}: {model.P_10} (description: {all_description_map[model.model].P_10})")
