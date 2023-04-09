@@ -12,6 +12,34 @@ from retrieval import query_retrieve
 from sentence_transformers import SentenceTransformer
 import logging
 
+class SentenceTransformerSpecb(SentenceTransformer):
+    # Requires:
+    # pip install git+https://github.com/Muennighoff/sentence-transformers.git@sgpt_poolings_specb
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        tokens = ["[SOS]", "{SOS}"]
+        self._first_module().tokenizer.add_tokens(tokens, special_tokens=True)
+        self._first_module().auto_model.resize_token_embeddings(len(self._first_module().tokenizer))
+        # Will be replaced with the rep tokens in the model ones
+        # The problem is we don't know if a text is query or document when tokenizing in the Transformer.py module, 
+        # so we use the SOS tokens as an identifier if we have a query or document at hand & then replace them
+        # If we would directly use the brackets here, they may become part of another token
+        self._first_module().bos_spec_token_q = self._first_module().tokenizer.encode("[SOS]", add_special_tokens=False)[0]
+        self._first_module().bos_spec_token_d = self._first_module().tokenizer.encode("{SOS}", add_special_tokens=False)[0]
+        self._first_module().bos_spec_token_q_rep = self._first_module().tokenizer.encode("[", add_special_tokens=False)[0]
+        self._first_module().eos_spec_token_q = self._first_module().tokenizer.encode("]", add_special_tokens=False)[0]
+        self._first_module().bos_spec_token_d_rep = self._first_module().tokenizer.encode("{", add_special_tokens=False)[0]
+        self._first_module().eos_spec_token_d = self._first_module().tokenizer.encode("}", add_special_tokens=False)[0]
+        self._first_module().replace_bos = True
+
+    def encode(self, sentences, **kwargs):
+        is_query = kwargs.pop("is_query", True)
+        if is_query:
+            sentences = "[SOS]" + sentences if isinstance(sentences, str) else ["[SOS]" + sent for sent in sentences]
+        else:
+            sentences = "{SOS}" + sentences if isinstance(sentences, str) else ["{SOS}" + sent for sent in sentences]    
+        return super().encode(sentences, **kwargs)
+
 logging.getLogger().setLevel(logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler())
 # os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:256"
@@ -21,6 +49,7 @@ print(f'Current device: {torch.cuda.current_device()}')
 print(torch.cuda.get_device_name(0))
 
 # Preprocess the collection
+logging.info('Preprocessing the collection...')
 preprocessed_documents = preprocess_directory('AP_collection/coll')
 preprocessed_documents.sort(key=lambda x: x.doc_no)
 
@@ -58,11 +87,23 @@ sentence_transformers = [
     ('gtr-t5-xxl', 'cpu'),
 ]
 muennighoff = [
-    'SGPT-125M-weightedmean-nli-bitfit',
-    # 'SGPT-5.8B-weightedmean-msmarco-specb-bitfit',
-    # 'SGPT-1.3B-weightedmean-msmarco-specb-bitfit',
-    # 'SGPT-125M-weightedmean-msmarco-specb-bitfit',
-    't5-small-finetuned-xsum',
+    # ('SGPT-5.8B-weightedmean-msmarco-specb-bitfit', 'cuda:0'),
+    # ('SGPT-1.3B-weightedmean-msmarco-specb-bitfit',  'cuda:0'),
+    ('SGPT-125M-lasttoken-msmarco-specb', 'cuda:0'),
+    # ('SGPT-125M-learntmean-nli', 'cuda:0'),
+    # ('SGPT-125M-mean-nli', 'cuda:0'),
+    # ('SGPT-125M-mean-nli-bitfit', 'cuda:0'),
+    # ('SGPT-125M-mean-nli-linear5', 'cuda:0'),
+    # ('SGPT-125M-mean-nli-linearthenpool5', 'cuda:0'),
+    # ('SGPT-125M-scratchmean-nli', 'cuda:0'),
+    # ('SGPT-125M-weightedmean-msmarco', 'cuda:0'),
+    # ('SGPT-125M-weightedmean-msmarco-asym', 'cuda:0'),
+    ('SGPT-125M-weightedmean-msmarco-specb', 'cuda:0'),
+    ('SGPT-125M-weightedmean-msmarco-specb-bitfit', 'cuda:0'),
+    ('SGPT-125M-weightedmean-msmarco-specb-bitfitwte', 'cuda:0'),
+    # ('SGPT-125M-weightedmean-nli', 'cuda:0'),
+    # ('SGPT-125M-weightedmean-nli-bitfit', 'cuda:0'),
+    # ('SGPT-125M-weightedmean-nli-bitfit-linearthenpool1-noact', 'cuda:0'),
 ]
 
 
@@ -70,16 +111,20 @@ sentence_transformers.sort(key=lambda x: x[0])
 muennighoff.sort()
 
 models = {
-    'sentence-transformers': sentence_transformers,
-    # 'Muennighoff': muennighoff,
+    # 'sentence-transformers': sentence_transformers,
+    'Muennighoff': muennighoff,
 }
 
 # list the models to be used, separated by new lines
-print('Models to be used:\n-',
-      '\n- '.join([x[0] for x in sentence_transformers]))
+print('Models to be used:')
+for lib, value in models.items():
+  for v in value:
+    model_name, device = v
+    print(f'- {lib}/{model_name} ({device})')
 
 embed_each_document = False
 descriptions = True
+
 
 for lib, value in models.items():
   for v in value:
@@ -88,7 +133,11 @@ for lib, value in models.items():
     # Load the model
     torch.cuda.empty_cache()
     logging.info(f'Using device: {device}')
-    model = SentenceTransformer(
+    if lib == 'Muennighoff' and 'specb' in model_name:
+      model = SentenceTransformerSpecb(
+        f'{lib}/{model_name}', device=device, cache_folder='./.cache')
+    else:
+      model = SentenceTransformer(
         f'{lib}/{model_name}', device=device, cache_folder='./.cache')
 
     # If the embeddings have already been computed, load them

@@ -30,18 +30,16 @@ def read_results(filename):
       models.append(model_data)
   return models
 
-all = read_results("all.txt")
-all_description = read_results("all-descriptions.txt")
+all = read_results("sgpt-test.txt")
+all_description = read_results("sgpt-descriptions.txt")
 all_map = {x.model: x for x in all}
 all_description_map = {x.model: x for x in all_description}
 
-print('---\nBest models by MAP:')
+print('---\nTop 5 models by MAP:')
 # compare the results
-for model in sorted(all, key=lambda x: x.map, reverse=True):
-  print(model.model)
-  print(f"  MAP: {model.map} (description: {all_description_map[model.model].map})")
+for x, model in enumerate(sorted(all, key=lambda x: x.map, reverse=True)[0:5]):
+  print(f"{x+1}. {model.model}: {model.map} (description: {all_description_map[model.model].map})")
 
-print('---\nBest models by P@10:')
-for model in sorted(all, key=lambda x: x.P_10, reverse=True):
-  print(model.model)
-  print(f"  P_10: {model.P_10} (description: {all_description_map[model.model].P_10})")
+print('---\nTop 5 models by P@10:')
+for x, model in enumerate(sorted(all, key=lambda x: x.P_10, reverse=True)[0:5]):
+  print(f"{x+1}. {model.model}: {model.P_10} (description: {all_description_map[model.model].P_10})")
