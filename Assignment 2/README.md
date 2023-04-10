@@ -407,9 +407,6 @@ Another method utilized to streamline the development process was to save the re
 
 * In response to Query 20 “The Consequences of Implantation of Silicone Gel Breast Devices”, a total of five results were found to be true. The remaining result was completely unrelated to the topic. With four results were related to female contraceptive devices and one result on the birth control device cervical cap.
 
-#### OId: map = 0.3238, P@10 = 0.4200'
-
-Class Avg: map = 0.1998 p@10 = 0.2602
 
 #### How to run the Option3.py file
 
