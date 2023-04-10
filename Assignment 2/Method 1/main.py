@@ -87,9 +87,9 @@ sentence_transformers = [
     ('gtr-t5-xxl', 'cpu'),
 ]
 muennighoff = [
-    # ('SGPT-5.8B-weightedmean-msmarco-specb-bitfit', 'cuda:0'),
+    ('SGPT-2.7B-weightedmean-msmarco-specb-bitfit', 'cpu'),
     # ('SGPT-1.3B-weightedmean-msmarco-specb-bitfit',  'cuda:0'),
-    ('SGPT-125M-lasttoken-msmarco-specb', 'cuda:0'),
+    # ('SGPT-125M-lasttoken-msmarco-specb', 'cuda:0'),
     # ('SGPT-125M-learntmean-nli', 'cuda:0'),
     # ('SGPT-125M-mean-nli', 'cuda:0'),
     # ('SGPT-125M-mean-nli-bitfit', 'cuda:0'),
@@ -98,9 +98,9 @@ muennighoff = [
     # ('SGPT-125M-scratchmean-nli', 'cuda:0'),
     # ('SGPT-125M-weightedmean-msmarco', 'cuda:0'),
     # ('SGPT-125M-weightedmean-msmarco-asym', 'cuda:0'),
-    ('SGPT-125M-weightedmean-msmarco-specb', 'cuda:0'),
-    ('SGPT-125M-weightedmean-msmarco-specb-bitfit', 'cuda:0'),
-    ('SGPT-125M-weightedmean-msmarco-specb-bitfitwte', 'cuda:0'),
+    # ('SGPT-125M-weightedmean-msmarco-specb', 'cuda:0'),
+    # ('SGPT-125M-weightedmean-msmarco-specb-bitfit', 'cuda:0'),
+    # ('SGPT-125M-weightedmean-msmarco-specb-bitfitwte', 'cuda:0'),
     # ('SGPT-125M-weightedmean-nli', 'cuda:0'),
     # ('SGPT-125M-weightedmean-nli-bitfit', 'cuda:0'),
     # ('SGPT-125M-weightedmean-nli-bitfit-linearthenpool1-noact', 'cuda:0'),
@@ -111,7 +111,7 @@ sentence_transformers.sort(key=lambda x: x[0])
 muennighoff.sort()
 
 models = {
-    'sentence-transformers': sentence_transformers,
+    # 'sentence-transformers': sentence_transformers,
     'Muennighoff': muennighoff,
 }
 
