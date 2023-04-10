@@ -65,7 +65,7 @@ To install the packages used in this project, run the following command:
 pip install -r requirements.txt
 ```
 
-Each completed method has instructions on how to run the program. Please follow the instructions provided in the sections, performing them in the directory of the method to execute (ex. If executing Method 1, ensure your current execution directory is `Assignment 2/Method 1`).
+Each completed method has instructions on how to run the program. Please follow the instructions provided in the sections, performing them in the directory of the method to execute (ex. If executing Method 1, ensure your current execution directory is `Assignment 2/Method 1`). The AP_collection is required in all of the completed methods as well.
 
 ## Method 1: Reranking with new similarity scores
 
