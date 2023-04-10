@@ -1,0 +1,7 @@
+
+.vscode/settings.json
+Assignment 2/embedding_saves/distilroberta.csv
+Assignment 2/embedding_saves/distilroberta_old.csv
+Assignment 2/trec_eval.exe
+*.gz
+*.csv
