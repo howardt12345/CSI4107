@@ -28,8 +28,8 @@ def read_results(filename):
       models.append(model_data)
   return models
 
-all = read_results("all.txt")
-all_description = read_results("all-descriptions.txt")
+all = read_results("transformers.txt")
+all_description = read_results("transformers-descriptions.txt")
 sgpt = read_results("sgpt-test.txt")
 sgpt_description = read_results("sgpt-descriptions.txt")
 
