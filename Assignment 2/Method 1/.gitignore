@@ -1,0 +1,6 @@
+env.ps1
+/.venv
+*.pyc
+trec_eval.exe
+/embedding_saves
+/.cache
