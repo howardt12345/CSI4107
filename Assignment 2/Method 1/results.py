@@ -51,11 +51,28 @@ print(f'---\nTop {n} models by P@10:')
 for x, model in enumerate(sorted(all, key=lambda x: x.P_10, reverse=True)[0:n]):
   print(f"{x+1}. {model.model}: {model.P_10} (w/description: {all_description_map[model.model].P_10})")
 
-# get the best overall model
-best_model = sorted(all, key=lambda x: x.map+x.P_10, reverse=True)[0]
-print(f'---\nBest model overall: {best_model.model} (MAP: {best_model.map}, P@10: {best_model.P_10})')
+# print the results in a markdown table, including the rank, and show the percentage difference between without and with description
+print(f'---\nTop {n} models by MAP:')
+print('| Rank | Model | MAP | MAP (w/description) | Difference |')
+print('| --- | --- | --- | --- | --- |')
+for x, model in enumerate(sorted(all, key=lambda x: x.map, reverse=True)[0:n]):
+  print(f"| {x+1} | {model.model} | {model.map} | {all_description_map[model.model].map} | {round((float(model.map) - float(all_description_map[model.model].map)) / float(model.map) * 100, 2) * -1}% |")
 
-# print the rest of the models in a single line
-print(f'---\nRest of the models:')
+# print the results in a markdown table, including the rank, and show the percentage difference between with and without description
+print(f'---\nTop {n} models by P@10:')
+print('| Rank | Model | P@10 | P@10 (w/description) | Difference |')
+print('| --- | --- | --- | --- | --- |')
+for x, model in enumerate(sorted(all, key=lambda x: x.P_10, reverse=True)[0:n]):
+  print(f"| {x+1} | {model.model} | {model.P_10} | {all_description_map[model.model].P_10} | {round((float(model.P_10) - float(all_description_map[model.model].P_10)) / float(model.P_10) * 100, 2) * -1}% |")
+
+# print the rest of the results in a markdown table, including the rank
+print('---\nRest of the models by MAP and P@10:')
+print('| Rank | Model | MAP | MAP (w/description) | P@10 | P@10 (w/description) |')
+print('| --- | --- | --- | --- | --- | --- |')
 for x, model in enumerate(sorted(all, key=lambda x: x.map, reverse=True)[n:]):
-  print(f"{x+n+1}. {model.model}: {model.map}, {model.P_10} (w/description: {all_description_map[model.model].map}, {all_description_map[model.model].P_10})")
+  print(f"| {x+n+1} | {model.model} | {model.map} | {all_description_map[model.model].map} | {model.P_10} | {all_description_map[model.model].P_10} |")
+
+# calcuate the average difference between with and without description in the top 10 models in percentage
+print('---\nAverage difference between with and without description in the top 10 models:')
+print(f"MAP: {round(sum([round((float(model.map) - float(all_description_map[model.model].map)) / float(model.map) * 100, 2) * -1 for model in sorted(all, key=lambda x: x.map, reverse=True)[0:n]]) / n, 2)}%")
+print(f"P@10: {round(sum([round((float(model.P_10) - float(all_description_map[model.model].P_10)) / float(model.P_10) * 100, 2) * -1 for model in sorted(all, key=lambda x: x.P_10, reverse=True)[0:n]]) / n, 2)}%")
