@@ -122,7 +122,7 @@ for lib, value in models.items():
     model_name, device = v
     print(f'- {lib}/{model_name} ({device})')
 
-embed_each_document = False
+embed_each_document = True
 descriptions = True
 
 
